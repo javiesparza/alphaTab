@@ -14,6 +14,7 @@
         "lint-ci": "npm run lint --workspaces --if-present -- --reporter=github",
         "typecheck": "npm run typecheck --workspaces --if-present",
         "dev": "npm run dev --workspace=packages/playground",
+        "dev:imports": "npm run dev:imports --workspace=packages/playground",
 
         "build-language-server": "npm run build --workspace=packages/lsp",
         "dev-language-server": "npm run dev --workspace=packages/lsp",

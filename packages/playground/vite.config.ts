@@ -4,10 +4,17 @@ import { buildTsconfigAliases } from '../tooling/src/tsconfig-aliases';
 import { stripProfilingPlugin } from '../tooling/src/vite.plugin.strip-profiling';
 import { elementStyleUsingPlugin } from '../tooling/src/vite.plugin.transform';
 import server from './vite.plugin.server';
+import songsterrImport from './vite.plugin.songsterr';
 
-export default defineConfig(_ => {
+export default defineConfig(({ mode }) => {
     const config: UserConfig = {
-        plugins: [react(), server(), elementStyleUsingPlugin(), stripProfilingPlugin({ enabled: false })],
+        plugins: [
+            react(),
+            server(),
+            mode === 'songsterr-import' && songsterrImport(),
+            elementStyleUsingPlugin(),
+            stripProfilingPlugin({ enabled: false })
+        ],
         resolve: {
             alias: buildTsconfigAliases(__dirname),
             // The ui and react packages resolve to their sources and must share the playground's React.
