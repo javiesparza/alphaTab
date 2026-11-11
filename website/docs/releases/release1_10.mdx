@@ -64,6 +64,19 @@ Tunings keep the sharp or flat spelling of the source file per string, and the s
 :4 0.6 2.5 2.4 0.3 | 0.2 2.3 0.1 r
 `}</AlphaTab>
 
+### Development playground
+
+#### playground: local score library and opt-in URL import
+
+This fork's Control demo can browse a browser-authorized score folder and import authorized
+Songsterr URLs through an optional loopback service. Imports can stay in memory or save as real
+Guitar Pro 7 files with unique names. Existing files, player controls and alphaTab attribution
+are preserved. Conversion limitations are shown with the imported score.
+
+Start the service with `npm run dev:imports`; ordinary development keeps local file loading
+without URL acquisition. This does not enable imports on the hosted website.
+Details: [Local Control player imports](/docs/contributing#local-control-imports).
+
 ### Kotlin
 
 #### kotlin: platform-independent alphaTab-core library
