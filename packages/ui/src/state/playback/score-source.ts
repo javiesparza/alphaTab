@@ -23,7 +23,12 @@ export interface ScoreSource {
     tex?: string;
     /** File contents in any format alphaTab imports, e.g. a file the user dropped. */
     bytes?: Uint8Array;
-    /** Display name of `bytes`, typically the file name. */
+    /**
+     * A score serialized with `JsonConverter.scoreToJson`; parsed anew with the current settings on each load.
+     * @since 1.10.0
+     */
+    json?: string;
+    /** Display name of `bytes` or `json`, typically the file name. */
     name?: string;
     backingTrack?: BackingTrackSource;
 }

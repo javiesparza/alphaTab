@@ -520,6 +520,10 @@ export class PlayerStore {
             const score = alphaTab.importer.ScoreLoader.loadScoreFromBytes(buffer, this.api.settings);
             this.playback.setSource(source);
             this.api.renderScore(score, resolveTrackIndexes(score, options.tracks));
+        } else if (source.json !== undefined) {
+            const score = alphaTab.model.JsonConverter.jsonToScore(source.json, this.api.settings);
+            this.playback.setSource(source);
+            this.api.renderScore(score, resolveTrackIndexes(score, options.tracks));
         } else if (source.tex) {
             this.loadTex(source.tex, { ...options, backingTrack: source.backingTrack });
         }

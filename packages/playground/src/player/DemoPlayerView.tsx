@@ -16,6 +16,7 @@ import {
 import type React from 'react';
 import { useCallback, useRef } from 'react';
 import styles from './demo-player.module.scss';
+import { FILE_ACCEPT } from './score-file-types';
 
 type PanelId = 'editor' | 'tracks' | 'settings';
 
@@ -48,7 +49,6 @@ export interface DemoPlayerViewProps {
     scoreOverlay?: React.ReactNode;
 }
 
-const FILE_ACCEPT = '.gp,.gp3,.gp4,.gp5,.gpx,.gp7,.gp8,.xml,.musicxml,.mxl,.capx,.alphatex,.atex,.tex,.txt';
 const noop = () => {};
 
 /**

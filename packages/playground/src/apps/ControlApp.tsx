@@ -1,7 +1,9 @@
 import { PlayerProvider, useScoreDocument } from '@coderline/alphatab-ui';
+import { ScoreLibraryPanel, useScoreLibrary } from '../library/ScoreLibraryPanel';
 import { DemoPlayerView } from '../player/DemoPlayerView';
 import { playerSettings, singleSampleDocuments } from '../player/environment';
 import { DevGlobals } from '../player/mount';
+import { SongsterrImportPanel, useSongsterrImport } from '../songsterr/SongsterrImportPanel';
 import { Paths } from '../util/Paths';
 
 const SETTINGS = playerSettings();
@@ -28,5 +30,23 @@ export function ControlApp() {
 
 function ControlView() {
     const doc = useScoreDocument(DOCUMENTS);
-    return <DemoPlayerView demo="control" doc={doc} />;
+    const library = useScoreLibrary();
+    const importer = useSongsterrImport(doc, library);
+    return (
+        <DemoPlayerView
+            demo="control"
+            doc={doc}
+            onOpenFile={importer.openFile}
+            beforeWorkspace={
+                <>
+                    <ScoreLibraryPanel
+                        library={library}
+                        onOpenFile={importer.openFile}
+                        onBeforeChange={importer.cancelPending}
+                    />
+                    <SongsterrImportPanel importer={importer} />
+                </>
+            }
+        />
+    );
 }

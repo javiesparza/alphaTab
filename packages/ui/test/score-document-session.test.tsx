@@ -73,4 +73,21 @@ describe('useScoreDocument session persistence', () => {
         expect(page.current().text).toBe('3.3.4');
         page.unmount();
     });
+
+    it('does not open a file whose read was superseded', async () => {
+        const page = await mountDocument();
+        const file = new File([new Uint8Array([1, 2])], 'superseded.gp');
+        let complete!: (buffer: ArrayBuffer) => void;
+        const reading = new Promise<ArrayBuffer>(resolve => { complete = resolve; });
+        vi.spyOn(file, 'arrayBuffer').mockReturnValue(reading);
+        const controller = new AbortController();
+        await act(async () => {
+            const opening = page.current().openFile(file, controller.signal);
+            controller.abort();
+            complete(new Uint8Array([1, 2]).buffer);
+            await expect(opening).rejects.toMatchObject({ name: 'AbortError' });
+        });
+        expect(page.current().document?.fileName).toBe('riff.alphatex');
+        page.unmount();
+    });
 });

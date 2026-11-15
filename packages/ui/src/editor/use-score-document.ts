@@ -76,7 +76,7 @@ export interface ScoreDocumentState {
     texResult: (TexLoadResult & { text: string }) | null;
     loadError: string | null;
     openSample: (sample: ScoreSample) => void;
-    openFile: (file: File) => Promise<void>;
+    openFile: (file: File, signal?: AbortSignal) => Promise<void>;
     /** Opens `text` as a new alphaTex document, e.g. a converted file. */
     openTex: (fileName: string, text: string) => void;
     /** Imports the open document again, e.g. after changing importer settings; keeps the track selection. */
@@ -279,12 +279,16 @@ export function useScoreDocument(adapter: ScoreDocumentAdapter): ScoreDocumentSt
     const openSample = useCallback((sample: ScoreSample) => open(documentForSample(sample, 'all')), [open]);
 
     const openFile = useCallback(
-        async (file: File) => {
+        async (file: File, signal?: AbortSignal) => {
+            signal?.throwIfAborted();
             const base = { id: nextDocumentId++, fileName: file.name, color: 'var(--at-track-green)', initialTracks: 'all' as const };
             if (TEX_EXTENSIONS.test(file.name)) {
-                open({ ...base, kind: 'tex', originalText: await file.text() });
+                const originalText = await file.text();
+                signal?.throwIfAborted();
+                open({ ...base, kind: 'tex', originalText });
             } else {
                 const bytes = new Uint8Array(await file.arrayBuffer());
+                signal?.throwIfAborted();
                 open({ ...base, kind: 'binary', source: { bytes, name: file.name }, link: null });
             }
         },

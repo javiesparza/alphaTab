@@ -108,6 +108,42 @@ npm run typecheck   # run tsc --noEmit across every workspace
 npm run clean       # remove build output from every workspace
 ```
 
+### Local Control player imports {#local-control-imports}
+
+This fork's Control demo imports authorized Songsterr scores and browses a folder you choose.
+Use Node.js 24 or another version supported by Vite 8. From the repository root, run:
+
+```bash
+npm ci
+npm run generate-typescript
+npm run dev:imports --workspace=packages/playground -- --port 5177 --strictPort
+```
+
+Open `http://127.0.0.1:5177/demos/control/`. The original file picker, drag-and-drop, track
+controls, settings, playback and exports remain available.
+
+Use **Choose folder** in Chrome or Edge to connect your score folder and grant browser access.
+Select a score and press **Open**; **Refresh** discovers files added outside the app.
+The list includes supported score files directly in that folder, not its subfolders.
+The browser remembers the directory handle, but may ask you to reconnect on a later visit.
+Selection and permission belong to the browser origin, including its port.
+**Disconnect** forgets the selection without deleting files.
+
+Expand **Import a Songsterr URL** and confirm that you own or have permission to use the score.
+Keep **Save a .gp copy in the connected folder** selected to save a real Guitar Pro 7 archive.
+Each save uses a new filename; existing scores are not replaced.
+Turn saving off for an import that stays in the current page.
+
+The local service contacts Songsterr and its score CDN. Your folder and local files stay in
+the browser. Access restrictions are not bypassed, and a missing track fails the whole import.
+Conversion limitations appear beside the score; use an authorized Guitar Pro file when you
+need the original notation fidelity.
+
+URL import is an opt-in, loopback-only development feature, not part of the hosted website.
+Ordinary `npm run dev` keeps local file loading but does not enable the URL-import endpoint.
+A launcher must start this checkout with `dev:imports`; merging the fork does not update
+another checkout or change its launch command.
+
 ### Platform-specific commands
 
 The web build is the default. To build or test the other platforms, use the per-platform scripts.

@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { model } from '@coderline/alphatab';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryPreferences, PlaybackPreferencesStore } from '../src/state/playback/preferences';
 import { PlayerStore } from '../src/state/store';
 import { asApi, createFakeApi, type FakeApi, scoreFromTex } from './fake-api';
@@ -129,5 +130,39 @@ describe('PlayerStore', () => {
         const ok = store.loadTex('3.3.4 3.3.4 3.3.4 3.3.4', { reuseViewport: true });
         expect(ok.rendered).toBe(true);
         expect(api.renderScore).toHaveBeenCalledWith(expect.anything(), undefined, { reuseViewport: true });
+    });
+
+    it('loads score JSON through the normal player path and reparses it on reload', async () => {
+        const source = { json: model.JsonConverter.scoreToJson(scoreFromTex(TEX)), name: 'converted.json' };
+        api.renderScore.mockClear();
+        await store.loadSource(source, { tracks: 'all' });
+        const first = api.renderScore.mock.calls[0][0] as model.Score;
+        expect(first.tracks.map(track => track.name)).toEqual(['Lead', 'Bass']);
+        expect(api.renderScore.mock.calls[0][1]).toEqual([-1]);
+        first.title = 'Changed in memory';
+        await store.loadSource(source, { tracks: [1] });
+        const second = api.renderScore.mock.calls[1][0] as model.Score;
+        expect(second === first).toBe(false);
+        expect(second.title).not.toBe('Changed in memory');
+        expect(api.renderScore.mock.calls[1][1]).toEqual([1]);
+    });
+
+    it('keeps the previous score on malformed JSON and supersedes a pending URL', async () => {
+        api.renderScore.mockClear();
+        await expect(store.loadSource({ json: '{invalid' })).rejects.toThrow();
+        expect(api.renderScore).not.toHaveBeenCalled();
+
+        let resolveFetch!: (response: Response) => void;
+        const pendingResponse = new Promise<Response>(resolve => { resolveFetch = resolve; });
+        vi.stubGlobal('fetch', vi.fn(() => pendingResponse));
+        try {
+            const pending = store.loadSource({ url: '/older.gp' });
+            await store.loadSource({ json: model.JsonConverter.scoreToJson(scoreFromTex(TEX)) });
+            resolveFetch(new Response(new Uint8Array([0])));
+            await pending;
+            expect(api.renderScore).toHaveBeenCalledTimes(1);
+        } finally {
+            vi.unstubAllGlobals();
+        }
     });
 });
